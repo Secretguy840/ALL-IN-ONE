@@ -1,0 +1,71 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Click the Moving Box Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+    }
+    .game-container {
+      margin: 20px auto;
+      position: relative;
+      width: 500px;
+      height: 500px;
+      background-color: #e0e0e0;
+      border: 2px solid #333;
+      overflow: hidden;
+    }
+    .moving-box {
+      width: 50px;
+      height: 50px;
+      background-color: red;
+      position: absolute;
+    }
+    #score {
+      font-size: 24px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Click the Moving Box Game!</h1>
+  <div class="game-container">
+    <div class="moving-box" id="box"></div>
+  </div>
+  <div id="score">Score: 0</div>
+  
+  <script>
+    // Get elements
+    const box = document.getElementById('box');
+    const scoreDisplay = document.getElementById('score');
+    let score = 0;
+
+    // Game constants
+    const gameContainer = document.querySelector('.game-container');
+    const containerWidth = gameContainer.clientWidth;
+    const containerHeight = gameContainer.clientHeight;
+
+    // Function to move the box to a random position
+    function moveBox() {
+      const randomX = Math.floor(Math.random() * (containerWidth - 50));
+      const randomY = Math.floor(Math.random() * (containerHeight - 50));
+      box.style.left = randomX + 'px';
+      box.style.top = randomY + 'px';
+    }
+
+    // Handle box click
+    box.addEventListener('click', function() {
+      score++;
+      scoreDisplay.textContent = 'Score: ' + score;
+      moveBox(); // Move box to a new random location after click
+    });
+
+    // Initial box position and game loop
+    moveBox();
+    setInterval(moveBox, 1000); // Move box every second
+  </script>
+</body>
+</html>

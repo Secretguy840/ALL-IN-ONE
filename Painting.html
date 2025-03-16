@@ -1,0 +1,64 @@
+< html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abstract Painting with HTML Canvas</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function drawRandomCircles(numCircles) {
+            for (let i = 0; i < numCircles; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const radius = Math.random() * 50 + 10; // radius between 10 and 60
+                ctx.fillStyle = getRandomColor();
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawRandomRectangles(numRectangles) {
+            for (let i = 0; i < numRectangles; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const width = Math.random() * 100 + 20; // width between 20 and 120
+                const height = Math.random() * 100 + 20; // height between 20 and 120
+                ctx.fillStyle = getRandomColor();
+                ctx.fillRect(x, y, width, height);
+            }
+        }
+
+        // Draw the painting
+        drawRandomCircles(20);
+        drawRandomRectangles(20);
+    </script>
+</body>
+</html>

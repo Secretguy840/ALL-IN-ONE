@@ -1,0 +1,150 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resident Evil-like Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2e2e2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            border: 2px solid #000;
+            background-color: #333;
+        }
+        .player, .zombie {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+        .player {
+            background-color: green;
+        }
+        .zombie {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Game Variables
+        const player = { x: 400, y: 300, width: 50, height: 50, speed: 5, color: "green" };
+        const zombies = [
+            { x: 100, y: 100, width: 50, height: 50, speed: 1, color: "red" },
+            { x: 700, y: 100, width: 50, height: 50, speed: 1, color: "red" }
+        ];
+        let keys = {};
+        let bullets = [];
+
+        // Player Movement
+        window.addEventListener("keydown", (e) => {
+            keys[e.key] = true;
+        });
+        window.addEventListener("keyup", (e) => {
+            keys[e.key] = false;
+        });
+
+        // Player Shooting
+        window.addEventListener("click", (e) => {
+            const bullet = { x: player.x + player.width / 2, y: player.y, radius: 5, speed: 7, direction: { x: e.clientX - player.x, y: e.clientY - player.y } };
+            const length = Math.sqrt(bullet.direction.x * bullet.direction.x + bullet.direction.y * bullet.direction.y);
+            bullet.direction.x /= length;
+            bullet.direction.y /= length;
+            bullets.push(bullet);
+        });
+
+        // Draw Player
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        // Draw Zombies
+        function drawZombies() {
+            zombies.forEach((zombie) => {
+                ctx.fillStyle = zombie.color;
+                ctx.fillRect(zombie.x, zombie.y, zombie.width, zombie.height);
+            });
+        }
+
+        // Move Player
+        function movePlayer() {
+            if (keys["ArrowUp"] || keys["w"]) player.y -= player.speed;
+            if (keys["ArrowDown"] || keys["s"]) player.y += player.speed;
+            if (keys["ArrowLeft"] || keys["a"]) player.x -= player.speed;
+            if (keys["ArrowRight"] || keys["d"]) player.x += player.speed;
+        }
+
+        // Move Zombies
+        function moveZombies() {
+            zombies.forEach((zombie) => {
+                const dx = player.x - zombie.x;
+                const dy = player.y - zombie.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                zombie.x += (dx / dist) * zombie.speed;
+                zombie.y += (dy / dist) * zombie.speed;
+            });
+        }
+
+        // Draw Bullets
+        function drawBullets() {
+            bullets.forEach((bullet, index) => {
+                bullet.x += bullet.direction.x * bullet.speed;
+                bullet.y += bullet.direction.y * bullet.speed;
+
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+                ctx.fillStyle = "yellow";
+                ctx.fill();
+
+                // Remove bullets out of bounds
+                if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+                    bullets.splice(index, 1);
+                }
+            });
+        }
+
+        // Collision Detection: Bullet hits Zombie
+        function checkBulletCollision() {
+            zombies.forEach((zombie, zIndex) => {
+                bullets.forEach((bullet, bIndex) => {
+                    const dx = bullet.x - zombie.x;
+                    const dy = bullet.y - zombie.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < bullet.radius + zombie.width / 2) {
+                        zombies.splice(zIndex, 1);
+                        bullets.splice(bIndex, 1);
+                    }
+                });
+            });
+        }
+
+        // Update Game
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+
+            movePlayer();
+            moveZombies();
+            drawPlayer();
+            drawZombies();
+            drawBullets();
+            checkBulletCollision();
+
+            requestAnimationFrame(update);
+        }
+
+        update(); // Start the game loop
+    </script>
+</body>
+</html>

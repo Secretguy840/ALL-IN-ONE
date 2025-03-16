@@ -1,0 +1,64 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Rotating Cube - HTML + CSS</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #2c3e50;
+            perspective: 800px; /* Adds depth for 3D effect */
+        }
+
+        .cube {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d; /* Enables 3D transformations */
+            animation: rotate 8s infinite linear; /* Rotates the cube */
+        }
+
+        .face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* Positioning each face of the cube */
+        .front  { transform: translateZ(100px); }
+        .back   { transform: translateZ(-100px) rotateY(180deg); }
+        .right  { transform: rotateY(90deg) translateZ(100px); }
+        .left   { transform: rotateY(-90deg) translateZ(100px); }
+        .top    { transform: rotateX(90deg) translateZ(100px); }
+        .bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+        /* Animation to rotate the cube */
+        @keyframes rotate {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to   { transform: rotateX(360deg) rotateY(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="cube">
+        <div class="face front">Front</div>
+        <div class="face back">Back</div>
+        <div class="face right">Right</div>
+        <div class="face left">Left</div>
+        <div class="face top">Top</div>
+        <div class="face bottom">Bottom</div>
+    </div>
+</body>
+</html>

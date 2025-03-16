@@ -1,0 +1,70 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abstract Mona Lisa</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0e68c;
+            margin: 0;
+        }
+        .mona-lisa {
+            position: relative;
+            width: 200px;
+            height: 300px;
+            background-color: #d1b7a1;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .face {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 100px;
+            height: 120px;
+            background-color: #f4c2c2;
+            border-radius: 50%;
+        }
+        .eyes {
+            position: absolute;
+            top: 40px;
+            left: 20px;
+            width: 60px;
+            height: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .eye {
+            width: 20px;
+            height: 20px;
+            background-color: #000;
+            border-radius: 50%;
+        }
+        .smile {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 30px;
+            border: 5px solid #000;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="mona-lisa">
+        <div class="face"></div>
+        <div class="eyes">
+            <div class="eye"></div>
+            <div class="eye"></div>
+        </div>
+        <div class="smile"></div>
+    </div>
+</body>
+</html>

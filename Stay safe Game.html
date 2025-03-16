@@ -1,0 +1,276 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Avoidance Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #282c34;
+        }
+        canvas {
+            display: block;
+            background-color: #222;
+            margin: 0 auto;
+        }
+        .game-over {
+            color: white;
+            font-size: 50px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="game-over" id="gameOverText">Game Over</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameOverText = document.getElementById('gameOverText');
+
+        // Set canvas size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Player properties
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height - 30,
+            width: 50,
+            height: 50,
+            speed: 5,
+            dx: 0,
+            dy: 0
+        };
+
+        // Obstacle properties
+        const obstacles = [];
+        const obstacleWidth = 50;
+        const obstacleHeight = 50;
+        const obstacleSpeed = 3;
+        let score = 0;
+
+        // Keydown listener to move the player
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') {
+                player.dx = -player.speed;
+            } else if (e.key === 'ArrowRight' || e.key === 'd') {
+                player.dx = player.speed;
+            }
+        });
+
+        // Keyup listener to stop the player
+        document.addEventListener('keyup', () => {
+            player.dx = 0;
+        });
+
+        // Function to generate obstacles
+        function createObstacle() {
+            const x = Math.random() * (canvas.width - obstacleWidth);
+            obstacles.push({ x, y: 0, width: obstacleWidth, height: obstacleHeight });
+        }
+
+        // Update the game elements
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Move player
+            player.x += player.dx;
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+            // Draw player
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // Move obstacles and check for collisions
+            for (let i = 0; i < obstacles.length; i++) {
+                const obstacle = obstacles[i];
+                obstacle.y += obstacleSpeed;
+                if (obstacle.y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score++;
+                }
+
+                // Draw obstacle
+                ctx.fillStyle = 'red';
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+                // Check for collision
+                if (player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
+                    endGame();
+                }
+            }
+
+            // Display score
+            ctx.fillStyle = 'white';
+            ctx.font = '30px Arial';
+            ctx.fillText('Score: ' + score, 20, 40);
+
+            // Continue the game if not over
+            if (!gameOver) {
+                requestAnimationFrame(update);
+            }
+        }
+
+        // End game function
+        function endGame() {
+            gameOver = true;
+            gameOverText.style.display = 'block';
+        }
+
+        // Game loop
+        let gameOver = false;
+        setInterval(createObstacle, 1000);
+        update();
+    </script>
+</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Avoidance Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #282c34;
+        }
+        canvas {
+            display: block;
+            background-color: #222;
+            margin: 0 auto;
+        }
+        .game-over {
+            color: white;
+            font-size: 50px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="game-over" id="gameOverText">Game Over</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameOverText = document.getElementById('gameOverText');
+
+        // Set canvas size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Player properties
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height - 30,
+            width: 50,
+            height: 50,
+            speed: 5,
+            dx: 0,
+            dy: 0
+        };
+
+        // Obstacle properties
+        const obstacles = [];
+        const obstacleWidth = 50;
+        const obstacleHeight = 50;
+        const obstacleSpeed = 3;
+        let score = 0;
+
+        // Keydown listener to move the player
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') {
+                player.dx = -player.speed;
+            } else if (e.key === 'ArrowRight' || e.key === 'd') {
+                player.dx = player.speed;
+            }
+        });
+
+        // Keyup listener to stop the player
+        document.addEventListener('keyup', () => {
+            player.dx = 0;
+        });
+
+        // Function to generate obstacles
+        function createObstacle() {
+            const x = Math.random() * (canvas.width - obstacleWidth);
+            obstacles.push({ x, y: 0, width: obstacleWidth, height: obstacleHeight });
+        }
+
+        // Update the game elements
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Move player
+            player.x += player.dx;
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+            // Draw player
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // Move obstacles and check for collisions
+            for (let i = 0; i < obstacles.length; i++) {
+                const obstacle = obstacles[i];
+                obstacle.y += obstacleSpeed;
+                if (obstacle.y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score++;
+                }
+
+                // Draw obstacle
+                ctx.fillStyle = 'red';
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+                // Check for collision
+                if (player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
+                    endGame();
+                }
+            }
+
+            // Display score
+            ctx.fillStyle = 'white';
+            ctx.font = '30px Arial';
+            ctx.fillText('Score: ' + score, 20, 40);
+
+            // Continue the game if not over
+            if (!gameOver) {
+                requestAnimationFrame(update);
+            }
+        }
+
+        // End game function
+        function endGame() {
+            gameOver = true;
+            gameOverText.style.display = 'block';
+        }
+
+        // Game loop
+        let gameOver = false;
+        setInterval(createObstacle, 1000);
+        update();
+    </script>
+</body>
+</html>

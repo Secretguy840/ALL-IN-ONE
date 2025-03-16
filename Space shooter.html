@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Shooter Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            border: 1px solid white;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let spaceshipWidth = 50, spaceshipHeight = 50;
+    let spaceshipX = canvas.width / 2 - spaceshipWidth / 2;
+    let spaceshipY = canvas.height - spaceshipHeight - 10;
+    let spaceshipSpeed = 7;
+
+    let bullets = [];
+    let asteroids = [];
+    let asteroidSpeed = 3;
+    let score = 0;
+
+    // Spaceship class
+    class Spaceship {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.width = spaceshipWidth;
+            this.height = spaceshipHeight;
+        }
+
+        draw() {
+            ctx.fillStyle = "white";
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+
+        move(direction) {
+            if (direction === "left" && this.x > 0) this.x -= spaceshipSpeed;
+            if (direction === "right" && this.x + this.width < canvas.width) this.x += spaceshipSpeed;
+        }
+    }
+
+    // Bullet class
+    class Bullet {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.width = 5;
+            this.height = 10;
+            this.speed = 5;
+        }
+
+        draw() {
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+
+        update() {
+            this.y -= this.speed;
+        }
+    }
+
+    // Asteroid class
+    class Asteroid {
+        constructor() {
+            this.x = Math.random() * (canvas.width - 50);
+            this.y = -50;
+            this.width = 50;
+            this.height = 50;
+        }
+
+        draw() {
+            ctx.fillStyle = "gray";
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+
+        update() {
+            this.y += asteroidSpeed;
+        }
+    }
+
+    // Create spaceship
+    const spaceship = new Spaceship(spaceshipX, spaceshipY);
+
+    // Key press events
+    let rightPressed = false;
+    let leftPressed = false;
+    let spacePressed = false;
+
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowRight') rightPressed = true;
+        if (e.code === 'ArrowLeft') leftPressed = true;
+        if (e.code === 'Space') spacePressed = true;
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowRight') rightPressed = false;
+        if (e.code === 'ArrowLeft') leftPressed = false;
+        if (e.code === 'Space') spacePressed = false;
+    });
+
+    // Function to generate asteroids
+    function generateAsteroids() {
+        if (Math.random() < 0.02) {
+            asteroids.push(new Asteroid());
+        }
+    }
+
+    // Function to handle collision detection
+    function checkCollision(bullet, asteroid) {
+        return bullet.x < asteroid.x + asteroid.width &&
+               bullet.x + bullet.width > asteroid.x &&
+               bullet.y < asteroid.y + asteroid.height &&
+               bullet.y + bullet.height > asteroid.y;
+    }
+
+    // Main game loop
+    function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        spaceship.draw();
+        generateAsteroids();
+
+        // Move spaceship
+        if (rightPressed) spaceship.move("right");
+        if (leftPressed) spaceship.move("left");
+
+        // Update and draw bullets
+        bullets.forEach((bullet, index) => {
+            bullet.update();
+            bullet.draw();
+            if (bullet.y < 0) bullets.splice(index, 1); // Remove bullets when off-screen
+        });
+
+        // Update and draw asteroids
+        asteroids.forEach((asteroid, index) => {
+            asteroid.update();
+            asteroid.draw();
+
+            // Check for collision with bullets
+            bullets.forEach((bullet, bIndex) => {
+                if (checkCollision(bullet, asteroid)) {
+                    score += 10;
+                    asteroids.splice(index, 1);
+                    bullets.splice(bIndex, 1);
+                }
+            });
+
+            // Game Over if asteroid reaches the spaceship
+            if (asteroid.y + asteroid.height >= spaceship.y && asteroid.x < spaceship.x + spaceship.width && asteroid.x + asteroid.width > spaceship.x) {
+                alert("Game Over! Final Score: " + score);
+                document.location.reload();
+            }
+        });
+
+        // Fire bullets when spacebar is pressed
+        if (spacePressed) {
+            bullets.push(new Bullet(spaceship.x + spaceship.width / 2 - 2, spaceship.y));
+            spacePressed = false;
+        }
+
+        // Draw score
+        ctx.fillStyle = "white";
+        ctx.font = "20px Arial";
+        ctx.fillText("Score: " + score, 10, 30);
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+</script>
+
+</body>
+</html>

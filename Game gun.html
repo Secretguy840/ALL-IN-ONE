@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2D Gun Shooting Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+    canvas {
+      display: block;
+      background-color: #f5f5f5;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    // Setting up the canvas
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Player properties (the gun)
+    const playerWidth = 50;
+    const playerHeight = 30;
+    let playerX = (canvas.width - playerWidth) / 2;
+    const playerY = canvas.height - playerHeight - 10;
+    const playerSpeed = 10;
+
+    // Bullet properties
+    const bulletWidth = 5;
+    const bulletHeight = 15;
+    let bullets = [];
+
+    // Target properties
+    const targetWidth = 40;
+    const targetHeight = 40;
+    let targets = [];
+    let targetSpeed = 2;
+
+    // Score and game status
+    let score = 0;
+    let gameOver = false;
+
+    // Event listeners for player movement and shooting
+    let leftPressed = false;
+    let rightPressed = false;
+    let spacePressed = false;
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        leftPressed = true;
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd') {
+        rightPressed = true;
+      }
+      if (e.key === ' ') {
+        spacePressed = true;
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        leftPressed = false;
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd') {
+        rightPressed = false;
+      }
+      if (e.key === ' ') {
+        spacePressed = false;
+      }
+    });
+
+    // Function to generate a new target
+    function generateTarget() {
+      const targetX = Math.random() * (canvas.width - targetWidth);
+      targets.push({ x: targetX, y: -targetHeight });
+    }
+
+    // Function to move the player
+    function movePlayer() {
+      if (leftPressed && playerX > 0) {
+        playerX -= playerSpeed;
+      }
+      if (rightPressed && playerX < canvas.width - playerWidth) {
+        playerX += playerSpeed;
+      }
+    }
+
+    // Function to fire bullets
+    function fireBullet() {
+      if (spacePressed) {
+        bullets.push({ x: playerX + playerWidth / 2 - bulletWidth / 2, y: playerY });
+      }
+    }
+
+    // Function to move the bullets
+    function moveBullets() {
+      for (let i = 0; i < bullets.length; i++) {
+        bullets[i].y -= 5; // Bullet moves up
+        // Remove bullets that go off the screen
+        if (bullets[i].y < 0) {
+          bullets.splice(i, 1);
+          i--;
+        }
+      }
+    }
+
+    // Function to move the targets
+    function moveTargets() {
+      for (let i = 0; i < targets.length; i++) {
+        targets[i].y += targetSpeed;
+        // Check for collisions with the bullets
+        for (let j = 0; j < bullets.length; j++) {
+          if (
+            bullets[j].x < targets[i].x + targetWidth &&
+            bullets[j].x + bulletWidth > targets[i].x &&
+            bullets[j].y < targets[i].y + targetHeight &&
+            bullets[j].y + bulletHeight > targets[i].y
+          ) {
+            targets.splice(i, 1);
+            bullets.splice(j, 1);
+            score++;
+            i--;
+            break;
+          }
+        }
+
+        // If target reaches the bottom, game over
+        if (targets[i].y > canvas.height) {
+          gameOver = true;
+        }
+      }
+    }
+
+    // Function to draw everything
+    function draw() {
+      if (gameOver) {
+        ctx.fillStyle = 'red';
+        ctx.font = '30px Arial';
+        ctx.fillText('Game Over! Score: ' + score, canvas.width / 2 - 150, canvas.height / 2);
+        return;
+      }
+
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the player
+      ctx.fillStyle = 'blue';
+      ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
+
+      // Draw the bullets
+      ctx.fillStyle = 'black';
+      for (let i = 0; i < bullets.length; i++) {
+        ctx.fillRect(bullets[i].x, bullets[i].y, bulletWidth, bulletHeight);
+      }
+
+      // Draw the targets
+      ctx.fillStyle = 'red';
+      for (let i = 0; i < targets.length; i++) {
+        ctx.fillRect(targets[i].x, targets[i].y, targetWidth, targetHeight);
+      }
+
+      // Draw the score
+      ctx.fillStyle = 'black';
+      ctx.font = '20px Arial';
+      ctx.fillText('Score: ' + score, 20, 30);
+
+      // Request next frame
+      requestAnimationFrame(updateGame);
+    }
+
+    // Main game loop
+    function updateGame() {
+      if (gameOver) return;
+
+      movePlayer();
+      fireBullet();
+      moveBullets();
+      moveTargets();
+      draw();
+    }
+
+    // Generate targets at random intervals
+    setInterval(generateTarget, 1500); // Generates a new target every 1.5 seconds
+
+    // Start the game
+    updateGame();
+  </script>
+</body>
+</html>
