@@ -18,11 +18,10 @@ if (isset($_GET['action'])) {
     }
 }
 ?>
-<!DOCTYPE html>
 <html>
 <head>
     <title>Sonic Ring Collector</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style2.css">
 </head>
 <body>
     <div class="game-container">
