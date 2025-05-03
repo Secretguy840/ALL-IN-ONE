@@ -1,0 +1,62 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #65b6f7, #1e90ff);
+    font-family: 'Arial', sans-serif;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#sonic {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: url('https://i.imgur.com/3YKFZ7X.gif') center/cover;
+    bottom: 150px;
+    left: 100px;
+    z-index: 10;
+}
+
+#ground {
+    position: absolute;
+    width: 100%;
+    height: 150px;
+    background: linear-gradient(to bottom, #5cd65c, #33cc33);
+    bottom: 0;
+}
+
+.obstacle {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: url('https://i.imgur.com/JX5t5Qp.png') center/cover;
+    bottom: 150px;
+}
+
+#score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+    color: gold;
+    text-shadow: 2px 2px 4px #000;
+}
+
+#start-screen, #game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+    color: white;
+    text-align: center;
+    text-shadow: 3px 3px 6px #000;
+}
+
+#game-over {
+    display: none;
+}

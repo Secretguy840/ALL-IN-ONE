@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ultimate City Simulator</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #222;
+            font-family: 'Arial', sans-serif;
+        }
+        canvas {
+            display: block;
+            background-color: #8ab4ff;
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        #toolbar {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .tool {
+            width: 50px;
+            height: 50px;
+            background: #555;
+            border: 2px solid #888;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+        }
+        .tool.active {
+            border-color: #4CAF50;
+            background: #333;
+        }
+        #timeControls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+        }
+        #stats {
+            position: absolute;
+            bottom: 80px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            width: 200px;
+        }
+        .stat-bar {
+            height: 10px;
+            background: #333;
+            margin-top: 5px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .stat-fill {
+            height: 100%;
+            background: #4CAF50;
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui">
+        <div>Money: $<span id="money">10000</span></div>
+        <div>Population: <span id="population">0</span></div>
+        <div>Day: <span id="day">1</span></div>
+    </div>
+    
+    <div id="timeControls">
+        <button id="pause">⏸️</button>
+        <button id="slow">▶️</button>
+        <button id="normal">⏩</button>
+        <button id="fast">⏭️</button>
+    </div>
+    
+    <div id="stats">
+        <h3>City Stats</h3>
+        <div>Happiness: <span id="happiness">50</span>% <div class="stat-bar"><div class="stat-fill" id="happiness-bar"></div></div></div>
+        <div>Employment: <span id="employment">0</span>% <div class="stat-bar"><div class="stat-fill" id="employment-bar"></div></div></div>
+        <div>Crime: <span id="crime">5</span>% <div class="stat-bar"><div class="stat-fill" id="crime-bar"></div></div></div>
+    </div>
+    
+    <div id="toolbar">
+        <div class="tool active" data-tool="select">👆</div>
+        <div class="tool" data-tool="road">🛣️</div>
+        <div class="tool" data-tool="house">🏠</div>
+        <div class="tool" data-tool="apartment">🏢</div>
+        <div class="tool" data-tool="commercial">🏪</div>
+        <div class="tool" data-tool="industrial">🏭</div>
+        <div class="tool" data-tool="park">🌳</div>
+        <div class="tool" data-tool="police">👮</div>
+        <div class="tool" data-tool="fire">🚒</div>
+        <div class="tool" data-tool="hospital">🏥</div>
+        <div class="tool" data-tool="bulldoze">💥</div>
+    </div>
+
+    <script>
+        // Game Canvas Setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Game State
+        let money = 10000;
+        let population = 0;
+        let day = 1;
+        let timeSpeed = 1; // 0 = paused, 1 = normal, 2 = fast, 3 = very fast
+        let time = 0;
+        let happiness = 50;
+        let employment = 0;
+        let crime = 5;
+        
+        let buildings = [];
+        let roads = [];
+        let people = [];
+        let cars = [];
+        let selectedTool = 'select';
+        let selectedBuilding = null;
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        
+        // Building Types
+        const BUILDING_TYPES = {
+            road: {
+                name: 'Road',
+                cost: 100,
+                width: 40,
+                height: 40,
+                color: '#555',
+                canPlace: true,
+                update: function() {}
+            },
+            house: {
+                name: 'House',
+                cost: 500,
+                width: 60,
+                height: 60,
+                color: '#f9a825',
+                residents: 5,
+                happinessEffect: 1,
+                update: function() {
+                    // Attract residents
+                    if (Math.random() < 0.01 && this.residents < 5) {
+                        this.residents++;
+                        population++;
+                        updateUI();
+                    }
+                }
+            },
+            apartment: {
+                name: 'Apartment',
+                cost: 2000,
+                width: 80,
+                height: 80,
+                color: '#78909c',
+                residents: 20,
+                happinessEffect: 0.5,
+                update: function() {
+                    // Attract residents
+                    if (Math.random() < 0.02 && this.residents < 20) {
+                        this.residents += 2;
+                        population += 2;
+                        updateUI();
+                    }
+                }
+            },
+            commercial: {
+                name: 'Commercial',
+                cost: 1500,
+                width: 70,
+                height: 70,
+                color: '#ab47bc',
+                jobs: 10,
+                happinessEffect: 0.2,
+                update: function() {
+                    // Generate income
+                    if (day % 30 === 0) {
+                        money += this.jobs * 5;
+                        updateUI();
+                    }
+                }
+            },
+            industrial: {
+                name: 'Industrial',
+                cost: 3000,
+                width: 90,
+                height: 90,
+                color: '#5c6bc0',
+                jobs: 20,
+                happinessEffect: -0.5,
+                update: function() {
+                    // Generate income but decrease happiness
+                    if (day % 30 === 0) {
+                        money += this.jobs * 10;
+                        happiness -= 1;
+                        if (happiness < 0) happiness = 0;
+                        updateUI();
+                    }
+                }
+            },
+            park: {
+                name: 'Park',
+                cost: 800,
+                width: 60,
+                height: 60,
+                color: '#66bb6a',
+                happinessEffect: 2,
+                update: function() {
+                    // Increase happiness in surrounding area
+                    happiness += 0.01;
+                    if (happiness > 100) happiness = 100;
+                }
+            },
+            police: {
+                name: 'Police Station',
+                cost: 2500,
+                width: 70,
+                height: 70,
+                color: '#3949ab',
+                happinessEffect: 0.5,
+                update: function() {
+                    // Reduce crime
+                    crime -= 0.05;
+                    if (crime < 0) crime = 0;
+                    updateUI();
+                }
+            },
+            fire: {
+                name: 'Fire Station',
+                cost: 2000,
+                width: 70,
+                height: 70,
+                color: '#e53935',
+                happinessEffect: 0.3,
+                update: function() {}
+            },
+            hospital: {
+                name: 'Hospital',
+                cost: 4000,
+                width: 80,
+                height: 80,
+                color: '#e91e63',
+                happinessEffect: 0.8,
+                update: function() {
+                    // Increase happiness
+                    happiness += 0.02;
+                    if (happiness > 100) happiness = 100;
+                }
+            }
+        };
+        
+        // Initialize Game
+        function init() {
+            // Add some initial roads
+            for (let i = 0; i < 5; i++) {
+                placeBuilding('road', 200 + i * 50, 300);
+            }
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Start game loop
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Game Loop
+        function gameLoop(timestamp) {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            drawGrid();
+            
+            // Draw roads
+            drawRoads();
+            
+            // Draw buildings
+            drawBuildings();
+            
+            // Draw cars
+            drawCars();
+            
+            // Draw people
+            drawPeople();
+            
+            // Update game state based on time speed
+            if (timeSpeed > 0) {
+                time += timeSpeed;
+                
+                // Every 1000 "time units" is a day
+                if (time > 1000) {
+                    time = 0;
+                    day++;
+                    updateCityStats();
+                    updateUI();
+                }
+                
+                // Update buildings
+                updateBuildings();
+                
+                // Update cars and people
+                updateCarsAndPeople();
+            }
+            
+            // Continue game loop
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Drawing Functions
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+        
+        function drawRoads() {
+            roads.forEach(road => {
+                ctx.fillStyle = road.color;
+                ctx.fillRect(road.x, road.y, road.width, road.height);
+                
+                // Road markings
+                ctx.fillStyle = '#fff';
+                if (road.width > road.height) {
+                    // Horizontal road
+                    for (let x = road.x + 10; x < road.x + road.width; x += 30) {
+                        ctx.fillRect(x, road.y + road.height / 2 - 2, 20, 4);
+                    }
+                } else {
+                    // Vertical road
+                    for (let y = road.y + 10; y < road.y + road.height; y += 30) {
+                        ctx.fillRect(road.x + road.width / 2 - 2, y, 4, 20);
+                    }
+                }
+            });
+        }
+        
+        function drawBuildings() {
+            buildings.forEach(building => {
+                if (building.type !== 'road') {
+                    ctx.fillStyle = building.color;
+                    ctx.fillRect(building.x, building.y, building.width, building.height);
+                    
+                    // Building details
+                    ctx.fillStyle = '#000';
+                    ctx.font = '10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(building.residents || building.jobs || '', 
+                                 building.x + building.width / 2, 
+                                 building.y + building.height / 2 + 3);
+                    
+                    // Highlight selected building
+                    if (selectedBuilding === building) {
+                        ctx.strokeStyle = '#4CAF50';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(building.x - 2, building.y - 2, 
+                                     building.width + 4, building.height + 4);
+                    }
+                }
+            });
+        }
+        
+        function drawCars() {
+            cars.forEach(car => {
+                ctx.fillStyle = car.color;
+                ctx.fillRect(car.x, car.y, 10, 20);
+                
+                // Car windows
+                ctx.fillStyle = '#9e9e9e';
+                ctx.fillRect(car.x + 1, car.y + 3, 8, 5);
+                ctx.fillRect(car.x + 1, car.y + 12, 8, 5);
+            });
+        }
+        
+        function drawPeople() {
+            people.forEach(person => {
+                ctx.fillStyle = person.color;
+                ctx.beginPath();
+                ctx.arc(person.x, person.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        
+        // Game Logic Functions
+        function updateBuildings() {
+            buildings.forEach(building => {
+                if (building.update) {
+                    building.update();
+                }
+            });
+        }
+        
+        function updateCarsAndPeople() {
+            // Move cars
+            cars.forEach(car => {
+                if (car.direction === 'right') {
+                    car.x += 1;
+                    if (car.x > canvas.width) car.x = -10;
+                } else if (car.direction === 'left') {
+                    car.x -= 1;
+                    if (car.x < -10) car.x = canvas.width;
+                } else if (car.direction === 'down') {
+                    car.y += 1;
+                    if (car.y > canvas.height) car.y = -20;
+                } else if (car.direction === 'up') {
+                    car.y -= 1;
+                    if (car.y < -20) car.y = canvas.height;
+                }
+            });
+            
+            // Move people
+            people.forEach(person => {
+                person.x += person.speedX;
+                person.y += person.speedY;
+                
+                // Random movement
+                if (Math.random() < 0.02) {
+                    person.speedX = Math.random() * 2 - 1;
+                    person.speedY = Math.random() * 2 - 1;
+                }
+                
+                // Keep people within bounds
+                if (person.x < 0) person.x = 0;
+                if (person.x > canvas.width) person.x = canvas.width;
+                if (person.y < 0) person.y = 0;
+                if (person.y > canvas.height) person.y = canvas.height;
+            });
+            
+            // Randomly add cars and people
+            if (Math.random() < 0.02 * timeSpeed && roads.length > 0) {
+                const road = roads[Math.floor(Math.random() * roads.length)];
+                const directions = ['left', 'right', 'up', 'down'];
+                const direction = directions[Math.floor(Math.random() * directions.length)];
+                
+                cars.push({
+                    x: road.x + road.width / 2 - 5,
+                    y: road.y + road.height / 2 - 10,
+                    color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                    direction: direction
+                });
+            }
+            
+            if (Math.random() < 0.01 * timeSpeed && buildings.filter(b => b.type === 'house' || b.type === 'apartment').length > 0) {
+                const residentialBuildings = buildings.filter(b => b.type === 'house' || b.type === 'apartment');
+                const building = residentialBuildings[Math.floor(Math.random() * residentialBuildings.length)];
+                
+                people.push({
+                    x: building.x + building.width / 2,
+                    y: building.y + building.height / 2,
+                    color: `hsl(${Math.random() * 360}, 70%, 70%)`,
+                    speedX: Math.random() * 2 - 1,
+                    speedY: Math.random() * 2 - 1
+                });
+            }
+        }
+        
+        function updateCityStats() {
+            // Calculate employment
+            const totalJobs = buildings.reduce((sum, b) => sum + (b.jobs || 0), 0);
+            const employable = population * 0.6; // 60% of population can work
+            employment = employable > 0 ? Math.min(Math.floor((totalJobs / employable) * 100), 100) : 0;
+            
+            // Calculate crime based on population and police presence
+            const policeStations = buildings.filter(b => b.type === 'police').length;
+            crime = 5 + population / 100 - policeStations * 2;
+            if (crime < 0) crime = 0;
+            if (crime > 50) crime = 50;
+            
+            // Update happiness based on buildings
+            let happinessChange = 0;
+            buildings.forEach(building => {
+                if (building.happinessEffect) {
+                    happinessChange += building.happinessEffect;
+                }
+            });
+            
+            // Adjust happiness based on other factors
+            happinessChange += employment / 50; // More employment = happier
+            happinessChange -= crime / 20; // More crime = less happy
+            
+            happiness += happinessChange / 10;
+            if (happiness < 0) happiness = 0;
+            if (happiness > 100) happiness = 100;
+            
+            // Update UI bars
+            document.getElementById('happiness-bar').style.width = `${happiness}%`;
+            document.getElementById('employment-bar').style.width = `${employment}%`;
+            document.getElementById('crime-bar').style.width = `${crime}%`;
+            
+            // Color bars based on values
+            document.getElementById('happiness-bar').style.background = 
+                happiness > 70 ? '#4CAF50' : happiness > 30 ? '#FFC107' : '#F44336';
+            document.getElementById('employment-bar').style.background = 
+                employment > 70 ? '#4CAF50' : employment > 30 ? '#FFC107' : '#F44336';
+            document.getElementById('crime-bar').style.background = 
+                crime < 10 ? '#4CAF50' : crime < 30 ? '#FFC107' : '#F44336';
+        }
+        
+        function updateUI() {
+            document.getElementById('money').textContent = money;
+            document.getElementById('population').textContent = population;
+            document.getElementById('day').textContent = day;
+            document.getElementById('happiness').textContent = Math.floor(happiness);
+            document.getElementById('employment').textContent = employment;
+            document.getElementById('crime').textContent = Math.floor(crime);
+        }
+        
+        // Building Placement
+        function placeBuilding(type, x, y) {
+            const buildingType = BUILDING_TYPES[type];
+            
+            // Check if we have enough money
+            if (money < buildingType.cost) {
+                alert('Not enough money!');
+                return false;
+            }
+            
+            // Check for collisions with other buildings
+            const newBuilding = {
+                type: type,
+                x: x,
+                y: y,
+                width: buildingType.width,
+                height: buildingType.height,
+                color: buildingType.color,
+                ...buildingType
+            };
+            
+            if (isColliding(newBuilding)) {
+                alert('Cannot place here!');
+                return false;
+            }
+            
+            // Deduct cost
+            money -= buildingType.cost;
+            
+            // Add to buildings array
+            buildings.push(newBuilding);
+            
+            // If it's a road, add to roads array
+            if (type === 'road') {
+                roads.push(newBuilding);
+            }
+            
+            updateUI();
+            return true;
+        }
+        
+        function isColliding(building) {
+            // Don't check collision for roads (they can overlap)
+            if (building.type === 'road') return false;
+            
+            for (const other of buildings) {
+                if (other.type === 'road') continue;
+                
+                if (building.x < other.x + other.width &&
+                    building.x + building.width > other.x &&
+                    building.y < other.y + other.height &&
+                    building.y + building.height > other.y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Event Handlers
+        function setupEventListeners() {
+            // Tool selection
+            document.querySelectorAll('.tool').forEach(tool => {
+                tool.addEventListener('click', () => {
+                    document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
+                    tool.classList.add('active');
+                    selectedTool = tool.dataset.tool;
+                    selectedBuilding = null;
+                });
+            });
+            
+            // Time controls
+            document.getElementById('pause').addEventListener('click', () => timeSpeed = 0);
+            document.getElementById('slow').addEventListener('click', () => timeSpeed = 1);
+            document.getElementById('normal').addEventListener('click', () => timeSpeed = 2);
+            document.getElementById('fast').addEventListener('click', () => timeSpeed = 3);
+            
+            // Canvas interaction
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (selectedTool === 'select') {
+                    // Find if we clicked on a building
+                    selectedBuilding = null;
+                    for (let i = buildings.length - 1; i >= 0; i--) {
+                        const building = buildings[i];
+                        if (x >= building.x && x <= building.x + building.width &&
+                            y >= building.y && y <= building.y + building.height) {
+                            selectedBuilding = building;
+                            break;
+                        }
+                    }
+                    
+                    // Start dragging if we're on empty space
+                    if (!selectedBuilding) {
+                        isDragging = true;
+                        dragStart = { x, y };
+                    }
+                } else if (selectedTool === 'bulldoze') {
+                    // Remove building under cursor
+                    for (let i = buildings.length - 1; i >= 0; i--) {
+                        const building = buildings[i];
+                        if (x >= building.x && x <= building.x + building.width &&
+                            y >= building.y && y <= building.y + building.height) {
+                            // Get some money back (50% refund)
+                            money += Math.floor(BUILDING_TYPES[building.type].cost * 0.5);
+                            
+                            // Remove residents/jobs
+                            if (building.residents) {
+                                population -= building.residents;
+                            }
+                            
+                            buildings.splice(i, 1);
+                            
+                            // If it was a road, remove from roads array
+                            if (building.type === 'road') {
+                                const roadIndex = roads.findIndex(r => r === building);
+                                if (roadIndex >= 0) {
+                                    roads.splice(roadIndex, 1);
+                                }
+                            }
+                            
+                            updateUI();
+                            break;
+                        }
+                    }
+                } else {
+                    // Place new building
+                    const buildingType = BUILDING_TYPES[selectedTool];
+                    const snapX = Math.floor(x / 10) * 10;
+                    const snapY = Math.floor(y / 10) * 10;
+                    
+                    placeBuilding(selectedTool, snapX - buildingType.width / 2, snapY - buildingType.height / 2);
+                }
+            });
+            
+            canvas.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Calculate drag distance
+                    const dx = x - dragStart.x;
+                    const dy = y - dragStart.y;
+                    
+                    // Move all buildings (simulating camera movement)
+                    buildings.forEach(building => {
+                        building.x += dx;
+                        building.y += dy;
+                    });
+                    
+                    roads.forEach(road => {
+                        road.x += dx;
+                        road.y += dy;
+                    });
+                    
+                    cars.forEach(car => {
+                        car.x += dx;
+                        car.y += dy;
+                    });
+                    
+                    people.forEach(person => {
+                        person.x += dx;
+                        person.y += dy;
+                    });
+                    
+                    dragStart = { x, y };
+                }
+            });
+            
+            canvas.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            canvas.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
+        }
+        
+        // Start the game
+        init();
+    </script>
+</body>
+</html>

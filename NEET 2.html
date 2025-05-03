@@ -1,0 +1,441 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Ultimate Challenge 2024</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --correct: #2ecc71;
+            --wrong: #e74c3c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        
+        .timer-container {
+            background-color: var(--accent);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .exam-panel {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .question-section {
+            flex: 3;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navigation-section {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .question {
+            margin-bottom: 25px;
+        }
+        
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+        }
+        
+        .option.selected {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .question-nav {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .nav-btn {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .nav-btn.answered {
+            background-color: var(--correct);
+            color: white;
+            border-color: var(--correct);
+        }
+        
+        .nav-btn.current {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .section-title {
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        
+        .assertion-reason {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .case-study {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .exam-panel {
+                flex-direction: column;
+            }
+            
+            .question-nav {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NEET ULTIMATE CHALLENGE 2024</h1>
+            <p>Model Question Paper - World Class Standard</p>
+        </header>
+        
+        <div class="timer-container">
+            Time Remaining: <span id="timer">03:20:00</span>
+        </div>
+        
+        <div class="exam-panel">
+            <div class="question-section">
+                <h2 class="section-title">PHYSICS</h2>
+                
+                <div class="question" id="q1">
+                    <div class="question-text">
+                        1. An electron in hydrogen atom jumps from 4th to 2nd orbit. If the emitted photon strikes a cesium surface (work function = 1.9 eV), the stopping potential will be:
+                    </div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 'q1')">a) 0.75 V</div>
+                        <div class="option" onclick="selectOption(this, 'q1')">b) 2.55 V</div>
+                        <div class="option correct" onclick="selectOption(this, 'q1')">c) 0.55 V</div>
+                        <div class="option" onclick="selectOption(this, 'q1')">d) 1.25 V</div>
+                    </div>
+                </div>
+                
+                <div class="question" id="q2">
+                    <div class="assertion-reason">
+                        <div class="question-text">
+                            2. <strong>Assertion (A):</strong> Nuclear density is nearly constant for all nuclei.<br>
+                            <strong>Reason (R):</strong> Nuclear force is charge independent and short range.
+                        </div>
+                    </div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 'q2')">a) Both A and R are true and R explains A</div>
+                        <div class="option" onclick="selectOption(this, 'q2')">b) Both A and R are true but R doesn't explain A</div>
+                        <div class="option correct" onclick="selectOption(this, 'q2')">c) A is true but R is false</div>
+                        <div class="option" onclick="selectOption(this, 'q2')">d) A is false</div>
+                    </div>
+                </div>
+                
+                <div class="question" id="q3">
+                    <div class="question-text">
+                        3. A circular loop of radius R carrying current I is placed in x-y plane. The magnetic field at point (0,0,√3R) is:
+                    </div>
+                    <div class="options">
+                        <div class="option correct" onclick="selectOption(this, 'q3')">a) μ₀I/8R</div>
+                        <div class="option" onclick="selectOption(this, 'q3')">b) μ₀I/4R</div>
+                        <div class="option" onclick="selectOption(this, 'q3')">c) √3μ₀I/8R</div>
+                        <div class="option" onclick="selectOption(this, 'q3')">d) μ₀I/2R</div>
+                    </div>
+                </div>
+                
+                <div class="question" id="q4">
+                    <div class="question-text">
+                        4. In an AC circuit, V = 200sin(100πt) and I = 200sin(100πt + π/3). The power dissipated is:
+                    </div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 'q4')">a) 20 kW</div>
+                        <div class="option correct" onclick="selectOption(this, 'q4')">b) 10 kW</div>
+                        <div class="option" onclick="selectOption(this, 'q4')">c) 5 kW</div>
+                        <div class="option" onclick="selectOption(this, 'q4')">d) 2.5 kW</div>
+                    </div>
+                </div>
+                
+                <h2 class="section-title">CHEMISTRY</h2>
+                
+                <div class="question" id="q5">
+                    <div class="question-text">
+                        5. The major product of the reaction:<br>
+                        CH₃-CH=CH₂ + HBr (in presence of benzoyl peroxide) → ?
+                    </div>
+                    <div class="options">
+                        <div class="option correct" onclick="selectOption(this, 'q5')">a) CH₃-CH₂-CH₂Br</div>
+                        <div class="option" onclick="selectOption(this, 'q5')">b) CH₃-CHBr-CH₃</div>
+                        <div class="option" onclick="selectOption(this, 'q5')">c) Br-CH₂-CH=CH₂</div>
+                        <div class="option" onclick="selectOption(this, 'q5')">d) No reaction</div>
+                    </div>
+                </div>
+                
+                <div class="question" id="q6">
+                    <div class="case-study">
+                        <div class="question-text">
+                            <strong>Case Study:</strong><br>
+                            A compound X (C₄H₈O) gives positive iodoform test. On oxidation with KMnO₄/H₂SO₄, it gives Y which gives effervescence with NaHCO₃.
+                        </div>
+                    </div>
+                    <div class="question-text">
+                        6. Compound X is:
+                    </div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 'q6')">a) Butan-1-ol</div>
+                        <div class="option correct" onclick="selectOption(this, 'q6')">b) Butan-2-ol</div>
+                        <div class="option" onclick="selectOption(this, 'q6')">c) 2-Methylpropan-2-ol</div>
+                        <div class="option" onclick="selectOption(this, 'q6')">d) Butanal</div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="prevQuestion()">Previous</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()">Next</button>
+                    <button class="btn btn-danger" onclick="submitExam()">Submit Exam</button>
+                </div>
+            </div>
+            
+            <div class="navigation-section">
+                <h3>Question Navigation</h3>
+                <div class="question-nav">
+                    <button class="nav-btn current" onclick="goToQuestion(1)">1</button>
+                    <button class="nav-btn" onclick="goToQuestion(2)">2</button>
+                    <button class="nav-btn" onclick="goToQuestion(3)">3</button>
+                    <button class="nav-btn" onclick="goToQuestion(4)">4</button>
+                    <button class="nav-btn" onclick="goToQuestion(5)">5</button>
+                    <button class="nav-btn" onclick="goToQuestion(6)">6</button>
+                    <!-- More buttons would be added for a full paper -->
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                        <div style="width: 15px; height: 15px; background-color: var(--secondary); margin-right: 10px;"></div>
+                        <span>Current Question</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                        <div style="width: 15px; height: 15px; background-color: var(--correct); margin-right: 10px;"></div>
+                        <span>Answered</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 15px; height: 15px; background-color: white; border: 1px solid #ddd; margin-right: 10px;"></div>
+                        <span>Unanswered</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h4>Summary</h4>
+                    <p>Total Questions: 180</p>
+                    <p>Answered: <span id="answered-count">0</span></p>
+                    <p>Remaining: <span id="remaining-count">180</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Current question tracking
+        let currentQuestion = 1;
+        const totalQuestions = 6; // Would be 180 in full paper
+        const answers = {};
+        
+        // Timer functionality
+        let timeLeft = 3 * 60 * 60; // 3 hours in seconds
+        const timer = setInterval(() => {
+            timeLeft--;
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                submitExam();
+            }
+        }, 1000);
+        
+        // Question navigation functions
+        function goToQuestion(qNum) {
+            document.getElementById(`q${currentQuestion}`).style.display = 'none';
+            document.querySelector(`.nav-btn:nth-child(${currentQuestion})`).classList.remove('current');
+            
+            currentQuestion = qNum;
+            document.getElementById(`q${currentQuestion}`).style.display = 'block';
+            document.querySelector(`.nav-btn:nth-child(${currentQuestion})`).classList.add('current');
+        }
+        
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions) {
+                goToQuestion(currentQuestion + 1);
+            }
+        }
+        
+        function prevQuestion() {
+            if (currentQuestion > 1) {
+                goToQuestion(currentQuestion - 1);
+            }
+        }
+        
+        // Answer selection
+        function selectOption(optionElement, questionId) {
+            const questionNum = parseInt(questionId.replace('q', ''));
+            const options = document.querySelectorAll(`#${questionId} .option`);
+            
+            // Remove selected class from all options
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            optionElement.classList.add('selected');
+            
+            // Store answer
+            answers[questionNum] = optionElement.textContent.trim().charAt(0);
+            
+            // Update navigation button
+            document.querySelector(`.nav-btn:nth-child(${questionNum})`).classList.add('answered');
+            
+            // Update summary
+            updateSummary();
+        }
+        
+        // Update answer summary
+        function updateSummary() {
+            const answered = Object.keys(answers).length;
+            document.getElementById('answered-count').textContent = answered;
+            document.getElementById('remaining-count').textContent = totalQuestions - answered;
+        }
+        
+        // Submit exam
+        function submitExam() {
+            if (confirm('Are you sure you want to submit your exam?')) {
+                clearInterval(timer);
+                alert('Exam submitted successfully!\nYour responses have been saved.');
+                // Here you would typically send the answers to a server for processing
+                console.log('User answers:', answers);
+            }
+        }
+        
+        // Initialize - show first question
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide all questions except first
+            for (let i = 2; i <= totalQuestions; i++) {
+                document.getElementById(`q${i}`).style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

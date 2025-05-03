@@ -1,0 +1,267 @@
+
+<html>
+<head>
+    <title>✨ Animated README Generator</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;12:39 PM 4/18/2025
+            background: #0f0f23;
+            color: #00ff00;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .container {
+            border: 1px dashed #00ff00;
+            padding: 20px;
+            border-radius: 5px;
+            background: rgba(0, 15, 0, 0.3);
+            min-height: 300px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: #0a0a1a;
+            color: #00ff00;
+            border: 1px solid #003300;
+            padding: 10px;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: #003300;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #006600;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .animated-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        
+        .letter {
+            display: inline-block;
+            position: relative;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        @keyframes rainbow {
+            0% { color: #ff0000; }
+            14% { color: #ff7f00; }
+            28% { color: #ffff00; }
+            42% { color: #00ff00; }
+            57% { color: #0000ff; }
+            71% { color: #4b0082; }
+            85% { color: #9400d3; }
+            100% { color: #ff0000; }
+        }
+        
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        select, input {
+            background: #0a0a1a;
+            color: #00ff00;
+            border: 1px solid #003300;
+            padding: 5px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="animated-title">✨ Animated README Generator ✨</h1>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="animation-type">Animation Type:</label>
+            <select id="animation-type">
+                <option value="float">Floating</option>
+                <option value="rainbow">Rainbow</option>
+                <option value="wave">Wave</option>
+                <option value="shake">Shake</option>
+                <option value="typewriter">Typewriter</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="animation-speed">Speed:</label>
+            <input type="range" id="animation-speed" min="1" max="10" value="5">
+        </div>
+        
+        <div class="control-group">
+            <label for="text-color">Text Color:</label>
+            <input type="color" id="text-color" value="#00ff00">
+        </div>
+    </div>
+    
+    <textarea id="input-text" placeholder="Enter your README content here..."># Welcome to My Project! 🚀
+
+This is an **animated README** that will make your GitHub profile stand out!
+
+✨ Features:
+- Floating letters
+- Rainbow effects
+- Wave animations
+- Customizable speed
+- Interactive preview
+
+## Installation
+```bash
+npm install awesome-project
+```</textarea>
+    
+    <button id="generate-btn">Generate Animated README</button>
+    
+    <div class="container">
+        <div id="output" class="animated-text"></div>
+    </div>
+    
+    <script>
+        document.getElementById('generate-btn').addEventListener('click', generateAnimatedReadme);
+        
+        function generateAnimatedReadme() {
+            const inputText = document.getElementById('input-text').value;
+            const animationType = document.getElementById('animation-type').value;
+            const speed = document.getElementById('animation-speed').value;
+            const textColor = document.getElementById('text-color').value;
+            
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+            
+            // Apply text color to container
+            output.style.color = textColor;
+            
+            // Process each character
+            for (let i = 0; i < inputText.length; i++) {
+                const char = inputText[i];
+                const span = document.createElement('span');
+                span.className = 'letter';
+                span.textContent = char;
+                
+                // Skip animating spaces and newlines
+                if (char === ' ' || char === '\n') {
+                    span.className = '';
+                    output.appendChild(span);
+                    continue;
+                }
+                
+                // Apply animation based on type
+                switch(animationType) {
+                    case 'float':
+                        span.style.animation = `float ${6-speed/2}s ease-in-out infinite`;
+                        span.style.animationDelay = `${i*0.1}s`;
+                        break;
+                    case 'rainbow':
+                        span.style.animation = `rainbow ${10-speed}s linear infinite`;
+                        span.style.animationDelay = `${i*0.05}s`;
+                        break;
+                    case 'wave':
+                        span.style.display = 'inline-block';
+                        span.style.transform = `translateY(${Math.sin(i/3) * 10}px)`;
+                        span.style.animation = `wave ${6-speed/2}s ease-in-out infinite`;
+                        span.style.animationDelay = `${i*0.05}s`;
+                        break;
+                    case 'shake':
+                        span.style.animation = `shake ${3-speed/3}s ease-in-out infinite`;
+                        span.style.animationDelay = `${i*0.05}s`;
+                        break;
+                    case 'typewriter':
+                        span.style.opacity = '0';
+                        span.style.animation = `typewriter 0.1s forwards`;
+                        span.style.animationDelay = `${i*0.05}s`;
+                        break;
+                }
+                
+                output.appendChild(span);
+            }
+            
+            // Add custom styles for typewriter effect
+            if (animationType === 'typewriter') {
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes typewriter {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Add custom styles for shake effect
+            if (animationType === 'shake') {
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes shake {
+                        0%, 100% { transform: translateX(0); }
+                        25% { transform: translateX(-5px); }
+                        75% { transform: translateX(5px); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Add custom styles for wave effect
+            if (animationType === 'wave') {
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes wave {
+                        0%, 100% { transform: translateY(0); }
+                        50% { transform: translateY(-15px); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        // Animate the title
+        function animateTitle() {
+            const title = document.getElementById('animated-title');
+            title.innerHTML = title.textContent.split('').map(char => 
+                `<span class="letter" style="
+                    animation: float ${3 + Math.random() * 3}s ease-in-out infinite, 
+                               rainbow ${10 + Math.random() * 5}s linear infinite;
+                    animation-delay: ${Math.random() * 0.5}s;
+                ">${char}</span>`
+            ).join('');
+        }
+        
+        animateTitle();
+    </script>
+</body>
+</html>

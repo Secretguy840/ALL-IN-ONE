@@ -1,0 +1,63 @@
+<?php
+session_start();
+if (!isset($_SESSION['rings'])) {
+    $_SESSION['rings'] = 0;
+    $_SESSION['multiplier'] = 1;
+    $_SESSION['auto_clickers'] = 0;
+}
+
+if (isset($_GET['action'])) {
+    if ($_GET['action'] == 'click') {
+        $_SESSION['rings'] += $_SESSION['multiplier'];
+    } elseif ($_GET['action'] == 'buy_multiplier' && $_SESSION['rings'] >= 10) {
+        $_SESSION['rings'] -= 10;
+        $_SESSION['multiplier']++;
+    } elseif ($_GET['action'] == 'buy_auto' && $_SESSION['rings'] >= 50) {
+        $_SESSION['rings'] -= 50;
+        $_SESSION['auto_clickers']++;
+    }
+}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sonic Ring Collector</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Sonic Ring Collector</h1>
+        <div class="sonic" onclick="collectRing()">
+            <img src="https://i.imgur.com/3YKFZ7X.gif" alt="Sonic">
+        </div>
+        <div class="stats">
+            <p>Rings: <?php echo $_SESSION['rings']; ?></p>
+            <p>Multiplier: x<?php echo $_SESSION['multiplier']; ?></p>
+            <p>Auto-Collectors: <?php echo $_SESSION['auto_clickers']; ?></p>
+        </div>
+        <div class="shop">
+            <button onclick="buyMultiplier()">Buy Multiplier (10 rings)</button>
+            <button onclick="buyAutoClicker()">Buy Auto-Collector (50 rings)</button>
+        </div>
+    </div>
+
+    <script>
+        function collectRing() {
+            window.location.href = "?action=click";
+        }
+        function buyMultiplier() {
+            window.location.href = "?action=buy_multiplier";
+        }
+        function buyAutoClicker() {
+            window.location.href = "?action=buy_auto";
+        }
+        
+        // Auto-collect every 3 seconds
+        setInterval(function() {
+            if (<?php echo $_SESSION['auto_clickers']; ?> > 0) {
+                window.location.href = "?action=click";
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

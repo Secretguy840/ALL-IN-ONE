@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #1e90ff;
+    text-align: center;
+    color: white;
+}
+.game-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 10px;
+}
+.sonic {
+    cursor: pointer;
+    margin: 20px;
+}
+.sonic img {
+    width: 100px;
+}
+button {
+    background: gold;
+    border: none;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}

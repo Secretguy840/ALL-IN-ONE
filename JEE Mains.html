@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Mains Ultimate Challenge 2024</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --correct: #2ecc71;
+            --wrong: #e74c3c;
+            --math: #9b59b6;
+            --physics: #3498db;
+            --chemistry: #e67e22;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        
+        .timer-container {
+            background-color: var(--accent);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .exam-panel {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .question-section {
+            flex: 3;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navigation-section {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .question {
+            margin-bottom: 25px;
+        }
+        
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+        }
+        
+        .option.selected {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .question-nav {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .nav-btn {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .nav-btn.answered {
+            background-color: var(--correct);
+            color: white;
+            border-color: var(--correct);
+        }
+        
+        .nav-btn.current {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .section-title {
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        
+        .math-section {
+            border-left: 4px solid var(--math);
+            padding-left: 10px;
+        }
+        
+        .physics-section {
+            border-left: 4px solid var(--physics);
+            padding-left: 10px;
+        }
+        
+        .chemistry-section {
+            border-left: 4px solid var(--chemistry);
+            padding-left: 10px;
+        }
+        
+        .numerical-type {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .matrix-match {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .exam-panel {
+                flex-direction: column;
+            }
+            
+            .question-nav {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>JEE MAINS ULTIMATE CHALLENGE 2024</h1>
+            <p>Model Question Paper - World Class Standard</p>
+        </header>
+        
+        <div class="timer-container">
+            Time Remaining: <span id="timer">03:00:00</span>
+        </div>
+        
+        <div class="exam-panel">
+            <div class="question-section">
+                <h2 class="section-title physics-section">PHYSICS</h2>
+                
+                <div class="question" id="q1">
+                    <div class="question-text">
+                        1. A particle is moving in a circle of radius R with constant speed v. The magnitude of average acceleration during motion from A to B (where angle AOB = 60°) is:
+                    </div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 'q1')">a) v²/R</div>
+                        <div class="option correct" onclick="selectOption(this, 'q1')">b) √3v²/(πR)</div>
+                        <div class="option" onclick="selectOption(this, 'q1')">c) 2v²/(πR)</div>
+                        <div class="option" onclick="selectOption(this, 'q1')">d) v²/(πR)</div>
+                    </div>
+                </div>
+                
+                <div class="question" id="q2">
+                    <div class="numerical-type">
+                        <div class="question-text">
+                            2. In Young's double slit experiment, the fringe width is 0.4 mm. If the entire apparatus is immersed in a liquid of refractive index 1.5, the new fringe width (in mm) will be:
+                        </div>
+                    </div>
+                    <div class="options">
+                        <div class="option correct" onclick="selectOption(this, 'q2')">a) 0.2667</div>
+                        <div class="option" onclick="selectOption(this, 'q2')">b) 0.3</div>
+                        <div class="option" onclick="selectOption(this, 'q2')">c) 0.6</div>
+                        <div class="option" onclick="selectOption(this, 'q2')">d) 0.8</div>
+                    </div>
+                </div>
+                
+                <h2 class="section-title chemistry-section">CHEMISTRY</h2>
+                
+                <div class="question" id="q3">
+                    <div class="question-text">
+                        3. Which of the following statements is correct about Freundlich adsorption isotherm?
+                    </div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 'q3')">a) It is valid at high pressure</div>
+                        <div class="option correct" onclick="selectOption(this, 'q3')">b) x/m = kp¹/ⁿ (n > 1)</div>
+                        <div class="option" onclick="selectOption(this, 'q3')">c) The slope of log x/m vs log p is always 1</div>
+                        <div class="option" onclick="selectOption(this, 'q3')">d) It considers multilayer adsorption</div>
+                    </div>
+                </div>
+                
+                <div class="question" id="q4">
+                    <div class="matrix-match">
+                        <div class="question-text">
+                            <strong>Matrix Match Type:</strong><br>
+                            Match Column I with Column II:
+                            <table style="width:100%; margin-top:10px;">
+                                <tr>
+                                    <th>Column I (Compound)</th>
+                                    <th>Column II (Hybridization)</th>
+                                </tr>
+                                <tr>
+                                    <td>1. XeF₄</td>
+                                    <td>A. sp³</td>
+                                </tr>
+                                <tr>
+                                    <td>2. SF₄</td>
+                                    <td>B. sp³d</td>
+                                </tr>
+                                <tr>
+                                    <td>3. PCl₅</td>
+                                    <td>C. sp³d²</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="options">
+                        <div class="option correct" onclick="selectOption(this, 'q4')">a) 1-C, 2-B, 3-B</div>
+                        <div class="option" onclick="selectOption(this, 'q4')">b) 1-B, 2-C, 3-A</div>
+                        <div class="option" onclick="selectOption(this, 'q4')">c) 1-C, 2-A, 3-B</div>
+                        <div class="option" onclick="selectOption(this, 'q4')">d) 1-A, 2-B, 3-C</div>
+                    </div>
+                </div>
+                
+                <h2 class="section-title math-section">MATHEMATICS</h2>
+                
+                <div class="question" id="q5">
+                    <div class="question-text">
+                        5. If the system of equations<br>
+                        x + y + z = 6<br>
+                        x + 2y + 3z = 10<br>
+                        x + 2y + λz = μ<br>
+                        has infinitely many solutions, then (λ, μ) is:
+                    </div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 'q5')">a) (3,10)</div>
+                        <div class="option correct" onclick="selectOption(this, 'q5')">b) (3,12)</div>
+                        <div class="option" onclick="selectOption(this, 'q5')">c) (4,10)</div>
+                        <div class="option" onclick="selectOption(this, 'q5')">d) (4,12)</div>
+                    </div>
+                </div>
+                
+                <div class="question" id="q6">
+                    <div class="question-text">
+                        6. The area bounded by the curves y = |x-1| and y = 3 - |x| is:
+                    </div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 'q6')">a) 2</div>
+                        <div class="option" onclick="selectOption(this, 'q6')">b) 3</div>
+                        <div class="option correct" onclick="selectOption(this, 'q6')">c) 4</div>
+                        <div class="option" onclick="selectOption(this, 'q6')">d) 6</div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="prevQuestion()">Previous</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()">Next</button>
+                    <button class="btn btn-danger" onclick="submitExam()">Submit Exam</button>
+                </div>
+            </div>
+            
+            <div class="navigation-section">
+                <h3>Question Navigation</h3>
+                <div class="question-nav">
+                    <button class="nav-btn current" onclick="goToQuestion(1)">1</button>
+                    <button class="nav-btn" onclick="goToQuestion(2)">2</button>
+                    <button class="nav-btn" onclick="goToQuestion(3)">3</button>
+                    <button class="nav-btn" onclick="goToQuestion(4)">4</button>
+                    <button class="nav-btn" onclick="goToQuestion(5)">5</button>
+                    <button class="nav-btn" onclick="goToQuestion(6)">6</button>
+                    <!-- More buttons would be added for a full paper -->
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                        <div style="width: 15px; height: 15px; background-color: var(--secondary); margin-right: 10px;"></div>
+                        <span>Current Question</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                        <div style="width: 15px; height: 15px; background-color: var(--correct); margin-right: 10px;"></div>
+                        <span>Answered</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 15px; height: 15px; background-color: white; border: 1px solid #ddd; margin-right: 10px;"></div>
+                        <span>Unanswered</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h4>Summary</h4>
+                    <p>Total Questions: 90</p>
+                    <p>Answered: <span id="answered-count">0</span></p>
+                    <p>Remaining: <span id="remaining-count">90</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Current question tracking
+        let currentQuestion = 1;
+        const totalQuestions = 6; // Would be 90 in full paper
+        const answers = {};
+        
+        // Timer functionality
+        let timeLeft = 3 * 60 * 60; // 3 hours in seconds
+        const timer = setInterval(() => {
+            timeLeft--;
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                submitExam();
+            }
+        }, 1000);
+        
+        // Question navigation functions
+        function goToQuestion(qNum) {
+            document.getElementById(`q${currentQuestion}`).style.display = 'none';
+            document.querySelector(`.nav-btn:nth-child(${currentQuestion})`).classList.remove('current');
+            
+            currentQuestion = qNum;
+            document.getElementById(`q${currentQuestion}`).style.display = 'block';
+            document.querySelector(`.nav-btn:nth-child(${currentQuestion})`).classList.add('current');
+        }
+        
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions) {
+                goToQuestion(currentQuestion + 1);
+            }
+        }
+        
+        function prevQuestion() {
+            if (currentQuestion > 1) {
+                goToQuestion(currentQuestion - 1);
+            }
+        }
+        
+        // Answer selection
+        function selectOption(optionElement, questionId) {
+            const questionNum = parseInt(questionId.replace('q', ''));
+            const options = document.querySelectorAll(`#${questionId} .option`);
+            
+            // Remove selected class from all options
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            optionElement.classList.add('selected');
+            
+            // Store answer
+            answers[questionNum] = optionElement.textContent.trim().charAt(0);
+            
+            // Update navigation button
+            document.querySelector(`.nav-btn:nth-child(${questionNum})`).classList.add('answered');
+            
+            // Update summary
+            updateSummary();
+        }
+        
+        // Update answer summary
+        function updateSummary() {
+            const answered = Object.keys(answers).length;
+            document.getElementById('answered-count').textContent = answered;
+            document.getElementById('remaining-count').textContent = totalQuestions - answered;
+        }
+        
+        // Submit exam
+        function submitExam() {
+            if (confirm('Are you sure you want to submit your exam?')) {
+                clearInterval(timer);
+                alert('Exam submitted successfully!\nYour responses have been saved.');
+                // Here you would typically send the answers to a server for processing
+                console.log('User answers:', answers);
+            }
+        }
+        
+        // Initialize - show first question
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide all questions except first
+            for (let i = 2; i <= totalQuestions; i++) {
+                document.getElementById(`q${i}`).style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

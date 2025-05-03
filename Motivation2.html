@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Goal Tracker</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 400px;
+            text-align: center;
+        }
+        .progress-container {
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        .quote {
+            font-style: italic;
+            margin: 20px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Goal Progress Tracker</h1>
+        <div class="quote" id="quote">"The secret of getting ahead is getting started." - Mark Twain</div>
+        
+        <h3 id="goal-title">Learn JavaScript</h3>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar">0%</div>
+        </div>
+        
+        <div>
+            <button onclick="updateProgress(10)">+10%</button>
+            <button onclick="updateProgress(25)">+25%</button>
+            <button onclick="resetProgress()">Reset</button>
+        </div>
+        
+        <div id="encouragement"></div>
+    </div>
+
+    <script>
+        let progress = 0;
+        const quotes = [
+            '"Small steps every day lead to big results."',
+            '"You don\'t have to be great to start, but you have to start to be great." - Zig Ziglar',
+            '"Progress equals happiness." - Tony Robbins',
+            '"The expert in anything was once a beginner."'
+        ];
+
+        function updateProgress(value) {
+            progress = Math.min(100, progress + value);
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-bar').innerText = progress + '%';
+            
+            if (progress >= 100) {
+                document.getElementById('encouragement').innerHTML = 
+                    '<h2 style="color:#4CAF50;">🎉 Goal Achieved! 🎉</h2>' +
+                    '<p>You did it! Set a new goal and keep going!</p>';
+            } else {
+                document.getElementById('quote').textContent = 
+                    quotes[Math.floor(Math.random() * quotes.length)];
+                
+                const encouragements = [
+                    "Keep going!",
+                    "You're making progress!",
+                    "Every step counts!",
+                    "I believe in you!"
+                ];
+                document.getElementById('encouragement').textContent = 
+                    encouragements[Math.floor(Math.random() * encouragements.length)];
+            }
+        }
+
+        function resetProgress() {
+            progress = 0;
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('progress-bar').innerText = '0%';
+            document.getElementById('encouragement').textContent = '';
+            document.getElementById('quote').textContent = 
+                quotes[Math.floor(Math.random() * quotes.length)];
+        }
+    </script>
+</body>
+</html>
